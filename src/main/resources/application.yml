@@ -1,6 +1,8 @@
 spring:
   application:
     name: server
+  config:
+    import: optional:classpath:application-secret.yml
   forward-headers-strategy: framework
   datasource:
     url: jdbc:h2:file:./data/certifoliodb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
