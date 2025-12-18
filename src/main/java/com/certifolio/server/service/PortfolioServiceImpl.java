@@ -294,7 +294,8 @@ public class PortfolioServiceImpl {
                     .location(hs.getLocation())
                     .startDate(hs.getEntranceDate())
                     .endDate(hs.getGraduationDate())
-                    .gpa(Double.valueOf(hs.getGpa() == null || hs.getGpa().isEmpty() ? "0" : hs.getGpa()))
+                    .gpa(parseGpa(hs.getGpa()))
+                    .maxGpa(parseMaxGpa(hs.getGpa()))
                     .status("graduated") // default
                     .build());
         }
@@ -307,7 +308,8 @@ public class PortfolioServiceImpl {
                     .degree(uni.getDegree())
                     .startDate(uni.getEntranceDate())
                     .endDate(uni.getGraduationDate())
-                    .gpa(Double.valueOf(uni.getGpa() == null || uni.getGpa().isEmpty() ? "0" : uni.getGpa()))
+                    .gpa(parseGpa(uni.getGpa()))
+                    .maxGpa(parseMaxGpa(uni.getGpa()))
                     .status(uni.getStatus())
                     .build());
         }
@@ -327,30 +329,134 @@ public class PortfolioServiceImpl {
         if (dto.getExperience() != null) {
              if (dto.getExperience().getInternships() != null) {
                  for (ProfileUploadDTO.InternshipDTO i : dto.getExperience().getInternships()) {
+                     String[] dates = parsePeriod(i.getPeriod());
                      careerList.add(CareerDTO.builder()
                              .company(i.getCompany())
                              .position(i.getPosition())
                              .type("intern")
                              .description(i.getDescription())
-                             .startDate(i.getPeriod()) 
-                             .endDate(i.getPeriod()) 
+                             .startDate(dates[0])
+                             .endDate(dates[1])
                              .build());
                  }
              }
              if (dto.getExperience().getJobs() != null) {
                  for (ProfileUploadDTO.JobDTO j : dto.getExperience().getJobs()) {
+                     String[] dates = parsePeriod(j.getPeriod());
                      careerList.add(CareerDTO.builder()
                              .company(j.getCompany())
                              .position(j.getPosition())
                              .department(j.getDepartment())
                              .type("job")
                              .description(j.getDescription())
-                             .startDate(j.getPeriod()) 
-                             .endDate(j.getPeriod()) 
+                             .startDate(dates[0])
+                             .endDate(dates[1])
                              .build());
                  }
              }
         }
         saveCareers(userId, careerList);
+    }
+
+    /**
+     * Parse Korean period format ("2024년 01월 ~ 2024년 06월") into [startDate, endDate]
+     * Returns array where index 0 = startDate, index 1 = endDate in YYYY-MM format
+     */
+    private String[] parsePeriod(String period) {
+        String[] result = new String[]{null, null};
+        if (period == null || period.isBlank()) {
+            return result;
+        }
+        
+        try {
+            // Split by common separators: ~, -, to
+            String[] parts = period.split("\\s*[~-]\\s*|\\s+to\\s+");
+            if (parts.length >= 1) {
+                result[0] = extractYearMonth(parts[0].trim());
+            }
+            if (parts.length >= 2) {
+                result[1] = extractYearMonth(parts[1].trim());
+            }
+        } catch (Exception e) {
+            // If parsing fails, return nulls
+        }
+        return result;
+    }
+
+    /**
+     * Extract YYYY-MM from various formats like "2024년 01월" or "2024-01"
+     */
+    private String extractYearMonth(String dateStr) {
+        if (dateStr == null || dateStr.isBlank() || dateStr.contains("현재") || dateStr.contains("Present")) {
+            return null;
+        }
+        
+        // Try Korean format: 2024년 01월
+        java.util.regex.Pattern koreanPattern = java.util.regex.Pattern.compile("(\\d{4})년\\s*(\\d{1,2})월");
+        java.util.regex.Matcher koreanMatcher = koreanPattern.matcher(dateStr);
+        if (koreanMatcher.find()) {
+            String year = koreanMatcher.group(1);
+            String month = String.format("%02d", Integer.parseInt(koreanMatcher.group(2)));
+            return year + "-" + month;
+        }
+        
+        // Try standard YYYY-MM format
+        java.util.regex.Pattern standardPattern = java.util.regex.Pattern.compile("(\\d{4})-(\\d{2})");
+        java.util.regex.Matcher standardMatcher = standardPattern.matcher(dateStr);
+        if (standardMatcher.find()) {
+            return standardMatcher.group(0);
+        }
+        
+        return null;
+    }
+
+    /**
+     * Parse GPA from various formats like "3.7", "3.7/4.5", "3.7 / 4.5"
+     * Returns the GPA value (first number)
+     */
+    private Double parseGpa(String gpaStr) {
+        if (gpaStr == null || gpaStr.isBlank()) {
+            return 0.0;
+        }
+        
+        try {
+            // Try to parse directly first
+            return Double.valueOf(gpaStr.trim());
+        } catch (NumberFormatException e) {
+            // If it contains "/", extract the first part
+            if (gpaStr.contains("/")) {
+                String[] parts = gpaStr.split("/");
+                if (parts.length >= 1) {
+                    try {
+                        return Double.valueOf(parts[0].trim());
+                    } catch (NumberFormatException e2) {
+                        return 0.0;
+                    }
+                }
+            }
+            return 0.0;
+        }
+    }
+
+    /**
+     * Parse Max GPA from formats like "3.7/4.5", "3.7 / 4.5"
+     * Returns the max GPA value (second number), defaults to 4.5 if not found
+     */
+    private Double parseMaxGpa(String gpaStr) {
+        if (gpaStr == null || gpaStr.isBlank()) {
+            return 4.5; // default
+        }
+        
+        if (gpaStr.contains("/")) {
+            String[] parts = gpaStr.split("/");
+            if (parts.length >= 2) {
+                try {
+                    return Double.valueOf(parts[1].trim());
+                } catch (NumberFormatException e) {
+                    return 4.5;
+                }
+            }
+        }
+        return 4.5; // default if no max specified
     }
 }

@@ -30,20 +30,36 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+        String uri = request.getRequestURI();
+        String authHeader = request.getHeader("Authorization");
+        
+        // Log for profile endpoint specifically
+        if (uri.contains("/portfolio/profile")) {
+            System.out.println("=== DEBUG /api/portfolio/profile ===");
+            System.out.println("Authorization header present: " + (authHeader != null));
+            if (authHeader != null) {
+                System.out.println("Authorization header starts with Bearer: " + authHeader.startsWith("Bearer "));
+                System.out.println("Token length: " + (authHeader.length() > 7 ? authHeader.substring(7).length() : 0));
+            }
+        }
+        
         String token = resolveToken(request);
         
         if (token != null) {
-            System.out.println("JwtAuthenticationFilter: Token found for URI: " + request.getRequestURI());
+            System.out.println("JwtAuthenticationFilter: Token found for URI: " + uri);
             if (jwtTokenProvider.validateToken(token)) {
                  System.out.println("JwtAuthenticationFilter: Token is valid");
                  String subject = jwtTokenProvider.getSubject(token);
+                 System.out.println("JwtAuthenticationFilter: Subject = " + subject);
                  Authentication authentication = new UsernamePasswordAuthenticationToken(subject, "", Collections.singletonList(new SimpleGrantedAuthority("ROLE_USER")));
                  SecurityContextHolder.getContext().setAuthentication(authentication);
             } else {
-                 System.out.println("JwtAuthenticationFilter: Token validation failed");
+                 System.out.println("JwtAuthenticationFilter: Token validation failed for URI: " + uri);
             }
         } else {
-            // System.out.println("JwtAuthenticationFilter: No token found for URI: " + request.getRequestURI());
+            if (uri.contains("/api/")) {
+                System.out.println("JwtAuthenticationFilter: No token found for API URI: " + uri);
+            }
         }
 
         filterChain.doFilter(request, response);

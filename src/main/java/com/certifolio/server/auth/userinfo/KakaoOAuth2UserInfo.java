@@ -11,7 +11,9 @@ public class KakaoOAuth2UserInfo implements OAuth2UserInfo {
     public KakaoOAuth2UserInfo(Map<String, Object> attributes) {
         this.attributes = attributes;
         this.kakaoAccount = (Map<String, Object>) attributes.get("kakao_account");
-        this.profile = (Map<String, Object>) kakaoAccount.get("profile");
+        if (this.kakaoAccount != null) {
+            this.profile = (Map<String, Object>) kakaoAccount.get("profile");
+        }
     }
 
     @Override
@@ -27,7 +29,7 @@ public class KakaoOAuth2UserInfo implements OAuth2UserInfo {
     @Override
     public String getEmail() {
         // Kakao might not provide email
-        if (kakaoAccount.containsKey("email")) {
+        if (kakaoAccount != null && kakaoAccount.containsKey("email")) {
             return (String) kakaoAccount.get("email");
         }
         return null;
@@ -41,3 +43,4 @@ public class KakaoOAuth2UserInfo implements OAuth2UserInfo {
         return null;
     }
 }
+

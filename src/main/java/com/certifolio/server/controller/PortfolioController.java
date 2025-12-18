@@ -97,7 +97,77 @@ public class PortfolioController {
     
     @GetMapping("/careers")
     public ResponseEntity<?> getCareers(@AuthenticationPrincipal Object principal) {
-        return ResponseEntity.ok(Map.of("success", true, "data", portfolioService.getCareers(getUserId(principal))));
+        Long userId = getUserId(principal);
+        List<CareerDTO> careers = portfolioService.getCareers(userId);
+        
+        // Calculate stats
+        int total = careers.size();
+        int current = (int) careers.stream().filter(CareerDTO::isCurrent).count();
+        int companies = (int) careers.stream().map(CareerDTO::getCompany).distinct().count();
+        
+        // Calculate total months from dates
+        int totalMonths = 0;
+        for (CareerDTO career : careers) {
+            try {
+                if (career.getStartDate() != null && !career.getStartDate().isEmpty()) {
+                    java.time.LocalDate startDate = parseDate(career.getStartDate());
+                    java.time.LocalDate endDate;
+                    
+                    if (career.isCurrent() || career.getEndDate() == null || career.getEndDate().isEmpty()) {
+                        endDate = java.time.LocalDate.now();
+                    } else {
+                        endDate = parseDate(career.getEndDate());
+                    }
+                    
+                    long months = java.time.temporal.ChronoUnit.MONTHS.between(startDate, endDate);
+                    totalMonths += (int) Math.max(1, months); // At least 1 month
+                }
+            } catch (Exception e) {
+                // Skip if date parsing fails
+                System.out.println("Failed to parse career dates: " + e.getMessage());
+            }
+        }
+        
+        Map<String, Object> stats = new java.util.HashMap<>();
+        stats.put("total", total);
+        stats.put("current", current);
+        stats.put("totalMonths", totalMonths);
+        stats.put("companies", companies);
+        
+        return ResponseEntity.ok(Map.of(
+            "success", true, 
+            "careers", careers,
+            "stats", stats
+        ));
+    }
+    
+    // Helper to parse various date formats
+    private java.time.LocalDate parseDate(String dateStr) {
+        if (dateStr == null || dateStr.isEmpty()) {
+            return java.time.LocalDate.now();
+        }
+        
+        // Try YYYY-MM-DD format
+        if (dateStr.matches("\\d{4}-\\d{2}-\\d{2}")) {
+            return java.time.LocalDate.parse(dateStr);
+        }
+        
+        // Try YYYY.MM.DD format
+        if (dateStr.matches("\\d{4}\\.\\d{2}\\.\\d{2}")) {
+            return java.time.LocalDate.parse(dateStr.replace(".", "-"));
+        }
+        
+        // Try YYYY-MM format
+        if (dateStr.matches("\\d{4}-\\d{2}")) {
+            return java.time.LocalDate.parse(dateStr + "-01");
+        }
+        
+        // Try YYYY.MM format
+        if (dateStr.matches("\\d{4}\\.\\d{2}")) {
+            return java.time.LocalDate.parse(dateStr.replace(".", "-") + "-01");
+        }
+        
+        return java.time.LocalDate.now();
     }
     
     @PostMapping("/educations")

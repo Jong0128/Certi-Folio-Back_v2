@@ -58,7 +58,11 @@ public class JwtTokenProvider {
         try {
             Jwts.parser().verifyWith(key).build().parseSignedClaims(token);
             return true;
+        } catch (ExpiredJwtException e) {
+            System.out.println("JWT Token expired: " + e.getMessage());
+            return false;
         } catch (JwtException | IllegalArgumentException e) {
+            System.out.println("JWT Token validation failed: " + e.getClass().getSimpleName() + " - " + e.getMessage());
             return false;
         }
     }
