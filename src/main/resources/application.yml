@@ -29,7 +29,7 @@ spring:
             client-secret: ${GOOGLE_CLIENT_SECRET}
             client-authentication-method: client_secret_post
             authorization-grant-type: authorization_code
-            redirect-uri: "https://clair-noninflationary-indefinately.ngrok-free.dev/login/oauth2/code/google"
+            redirect-uri: "http://localhost:8080/login/oauth2/code/google"
             scope:
               - email
               - profile
@@ -38,7 +38,7 @@ spring:
             client-secret: ${NAVER_CLIENT_SECRET}
             client-authentication-method: client_secret_post
             authorization-grant-type: authorization_code
-            redirect-uri: "https://clair-noninflationary-indefinately.ngrok-free.dev/login/oauth2/code/naver"
+            redirect-uri: "http://localhost:8080/login/oauth2/code/naver"
             scope:
               - name
               - email
@@ -49,7 +49,7 @@ spring:
             client-secret: ${KAKAO_CLIENT_SECRET}
             client-authentication-method: client_secret_post
             authorization-grant-type: authorization_code
-            redirect-uri: "https://clair-noninflationary-indefinately.ngrok-free.dev/login/oauth2/code/kakao"
+            redirect-uri: "http://localhost:8080/login/oauth2/code/kakao"
             scope:
               - profile_nickname
               - profile_image

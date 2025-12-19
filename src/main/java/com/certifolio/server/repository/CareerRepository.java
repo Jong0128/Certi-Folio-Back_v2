@@ -8,4 +8,6 @@ import java.util.List;
 
 public interface CareerRepository extends JpaRepository<Career, Long> {
     List<Career> findAllByUser(User user);
+
+    List<Career> findByUserId(Long userId);
 }
