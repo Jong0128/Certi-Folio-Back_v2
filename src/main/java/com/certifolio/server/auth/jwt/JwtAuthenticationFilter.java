@@ -1,7 +1,7 @@
 package com.certifolio.server.auth.jwt;
 
-import com.certifolio.server.domain.User;
-import com.certifolio.server.repository.UserRepository;
+import com.certifolio.server.User.domain.User;
+import com.certifolio.server.User.repository.UserRepository;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -29,10 +29,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final UserRepository userRepository;
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
+            throws ServletException, IOException {
         String uri = request.getRequestURI();
         String authHeader = request.getHeader("Authorization");
-        
+
         // Log for profile endpoint specifically
         if (uri.contains("/portfolio/profile")) {
             System.out.println("=== DEBUG /api/portfolio/profile ===");
@@ -42,19 +43,20 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 System.out.println("Token length: " + (authHeader.length() > 7 ? authHeader.substring(7).length() : 0));
             }
         }
-        
+
         String token = resolveToken(request);
-        
+
         if (token != null) {
             System.out.println("JwtAuthenticationFilter: Token found for URI: " + uri);
             if (jwtTokenProvider.validateToken(token)) {
-                 System.out.println("JwtAuthenticationFilter: Token is valid");
-                 String subject = jwtTokenProvider.getSubject(token);
-                 System.out.println("JwtAuthenticationFilter: Subject = " + subject);
-                 Authentication authentication = new UsernamePasswordAuthenticationToken(subject, "", Collections.singletonList(new SimpleGrantedAuthority("ROLE_USER")));
-                 SecurityContextHolder.getContext().setAuthentication(authentication);
+                System.out.println("JwtAuthenticationFilter: Token is valid");
+                String subject = jwtTokenProvider.getSubject(token);
+                System.out.println("JwtAuthenticationFilter: Subject = " + subject);
+                Authentication authentication = new UsernamePasswordAuthenticationToken(subject, "",
+                        Collections.singletonList(new SimpleGrantedAuthority("ROLE_USER")));
+                SecurityContextHolder.getContext().setAuthentication(authentication);
             } else {
-                 System.out.println("JwtAuthenticationFilter: Token validation failed for URI: " + uri);
+                System.out.println("JwtAuthenticationFilter: Token validation failed for URI: " + uri);
             }
         } else {
             if (uri.contains("/api/")) {
