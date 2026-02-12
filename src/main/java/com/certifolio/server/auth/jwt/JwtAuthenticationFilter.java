@@ -1,4 +1,4 @@
-package com.certifolio.server.auth.jwt;
+package com.certifolio.server.Auth.jwt;
 
 import com.certifolio.server.User.domain.User;
 import com.certifolio.server.User.repository.UserRepository;

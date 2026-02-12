@@ -1,5 +1,6 @@
 package com.certifolio.server.Career.dto;
 
+import com.certifolio.server.Career.domain.Career;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -21,4 +22,25 @@ public class CareerDTO {
     private String location;
     private String description;
     private String skills;
+
+    /**
+     * Entity to DTO 변환
+     */
+    public static CareerDTO from(Career career) {
+        if (career == null)
+            return null;
+
+        return CareerDTO.builder()
+                .id(career.getId())
+                .company(career.getCompany())
+                .position(career.getPosition())
+                .department(career.getDepartment())
+                .type(career.getType())
+                .startDate(career.getStartDate() != null ? career.getStartDate().toString() : null)
+                .endDate(career.getEndDate() != null ? career.getEndDate().toString() : null)
+                .isCurrent(career.isCurrent())
+                .location(career.getLocation())
+                .description(career.getDescription())
+                .build();
+    }
 }

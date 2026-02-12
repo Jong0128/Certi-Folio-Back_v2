@@ -1,4 +1,4 @@
-package com.certifolio.server.auth.userinfo;
+package com.certifolio.server.Auth.userinfo;
 
 public interface OAuth2UserInfo {
     String getProviderId();

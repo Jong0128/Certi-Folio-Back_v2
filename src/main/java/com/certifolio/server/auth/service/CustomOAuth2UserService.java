@@ -1,12 +1,13 @@
-package com.certifolio.server.service;
+package com.certifolio.server.auth.service;
 
+import com.certifolio.server.User.domain.User;
+import com.certifolio.server.User.domain.Role;
+import com.certifolio.server.User.repository.UserRepository;
 import com.certifolio.server.auth.userinfo.GoogleOAuth2UserInfo;
 import com.certifolio.server.auth.userinfo.KakaoOAuth2UserInfo;
 import com.certifolio.server.auth.userinfo.NaverOAuth2UserInfo;
 import com.certifolio.server.auth.userinfo.OAuth2UserInfo;
-import com.certifolio.server.User.domain.User;
-import com.certifolio.server.User.domain.Role;
-import com.certifolio.server.User.repository.UserRepository;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;

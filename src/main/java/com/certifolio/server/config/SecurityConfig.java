@@ -1,8 +1,9 @@
 package com.certifolio.server.config;
 
-import com.certifolio.server.auth.jwt.JwtAuthenticationFilter;
 import com.certifolio.server.auth.handler.OAuth2SuccessHandler;
-import com.certifolio.server.service.CustomOAuth2UserService;
+import com.certifolio.server.auth.jwt.JwtAuthenticationFilter;
+import com.certifolio.server.auth.service.CustomOAuth2UserService;
+
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;

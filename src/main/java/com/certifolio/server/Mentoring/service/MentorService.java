@@ -7,8 +7,7 @@ import com.certifolio.server.User.dto.EducationDTO;
 import com.certifolio.server.Mentoring.dto.MentorDTO;
 import com.certifolio.server.Mentoring.repository.*;
 import com.certifolio.server.User.repository.UserRepository;
-import com.certifolio.server.User.repository.EducationRepository;
-import com.certifolio.server.Career.repository.CareerRepository;
+import com.certifolio.server.User.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -28,8 +27,7 @@ public class MentorService {
     private final MentorSkillRepository mentorSkillRepository;
     private final MentorAvailabilityRepository mentorAvailabilityRepository;
     private final UserRepository userRepository;
-    private final EducationRepository educationRepository;
-    private final CareerRepository careerRepository;
+    private final UserService userService; // UserService를 통해 User 관련 데이터 조회
 
     /**
      * 멘토 검색/목록 조회
@@ -62,40 +60,10 @@ public class MentorService {
         Mentor mentor = mentorRepository.findById(mentorId)
                 .orElseThrow(() -> new RuntimeException("멘토를 찾을 수 없습니다."));
 
-        // 연관된 User의 학력/경력 정보 조회
-        List<EducationDTO> educationList = educationRepository.findByUserId(mentor.getUser().getId())
-                .stream()
-                .map(e -> EducationDTO.builder()
-                        .id(e.getId())
-                        .type(e.getType())
-                        .schoolName(e.getSchoolName())
-                        .major(e.getMajor())
-                        .degree(e.getDegree())
-                        .status(e.getStatus())
-                        .startDate(e.getStartDate() != null ? e.getStartDate().toString() : null)
-                        .endDate(e.getEndDate() != null ? e.getEndDate().toString() : null)
-                        .isCurrent(e.isCurrent())
-                        .gpa(e.getGpa())
-                        .maxGpa(e.getMaxGpa())
-                        .location(e.getLocation())
-                        .build())
-                .collect(Collectors.toList());
-
-        List<CareerDTO> careerList = careerRepository.findByUserId(mentor.getUser().getId())
-                .stream()
-                .map(c -> CareerDTO.builder()
-                        .id(c.getId())
-                        .company(c.getCompany())
-                        .position(c.getPosition())
-                        .department(c.getDepartment())
-                        .type(c.getType())
-                        .startDate(c.getStartDate() != null ? c.getStartDate().toString() : null)
-                        .endDate(c.getEndDate() != null ? c.getEndDate().toString() : null)
-                        .isCurrent(c.isCurrent())
-                        .location(c.getLocation())
-                        .description(c.getDescription())
-                        .build())
-                .collect(Collectors.toList());
+        // UserService를 통해 User의 학력/경력 정보 조회 (OOP 원칙 준수)
+        Long userId = mentor.getUser().getId();
+        List<EducationDTO> educationList = userService.getEducationsByUserId(userId);
+        List<CareerDTO> careerList = userService.getCareersByUserId(userId);
 
         return MentorDTO.MentorProfileResponse.from(mentor, educationList, careerList);
     }

@@ -1,4 +1,4 @@
-package com.certifolio.server.Dashboard.controller;
+package com.certifolio.server.Dashboard;
 
 import com.certifolio.server.User.domain.User;
 import com.certifolio.server.User.repository.UserRepository;

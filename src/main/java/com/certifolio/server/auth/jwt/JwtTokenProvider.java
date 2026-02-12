@@ -1,4 +1,4 @@
-package com.certifolio.server.auth.jwt;
+package com.certifolio.server.Auth.jwt;
 
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
