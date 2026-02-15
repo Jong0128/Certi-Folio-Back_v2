@@ -41,7 +41,7 @@ public class Activity {
 
     @Builder
     public Activity(User user, String name, String type, String organizer, String role, String period,
-            String description, String link, String result) {
+                    String description, String link, String result) {
         this.user = user;
         this.name = name;
         this.type = type;
