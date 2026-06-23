@@ -13,7 +13,9 @@ public class WebClientConfig {
     @Bean
     public WebClient webClient() {
         return WebClient.builder()
-                .clientConnector(new JdkClientHttpConnector(HttpClient.newHttpClient()))
+                .clientConnector(new JdkClientHttpConnector(HttpClient.newBuilder()
+                        .version(HttpClient.Version.HTTP_1_1)
+                        .build()))
                 .codecs(configurer -> configurer.defaultCodecs().maxInMemorySize(1024 * 1024))
                 .build();
     }

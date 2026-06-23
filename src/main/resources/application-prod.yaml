@@ -1,0 +1,33 @@
+spring:
+  datasource:
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        format_sql: false
+    show-sql: false
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            redirect-uri: "${OAUTH_GOOGLE_REDIRECT_URI}"
+          naver:
+            redirect-uri: "${OAUTH_NAVER_REDIRECT_URI}"
+          kakao:
+            redirect-uri: "${OAUTH_KAKAO_REDIRECT_URI}"
+
+app:
+  oauth2:
+    redirect-uri: ${APP_OAUTH2_REDIRECT_URI}
+    authorized-redirect-uris:
+      - ${APP_OAUTH2_REDIRECT_URI}
+
+ai:
+  api:
+    base-url: ${AI_API_BASE_URL}
+    internal-api-key: ${AI_INTERNAL_API_KEY}

@@ -5,11 +5,13 @@ import com.certifolio.server.global.security.handler.CustomAccessDeniedHandler;
 import com.certifolio.server.global.security.handler.CustomAuthenticationEntryPoint;
 import com.certifolio.server.global.security.handler.OAuth2FailureHandler;
 import com.certifolio.server.global.security.handler.OAuth2SuccessHandler;
+import com.certifolio.server.global.security.mock.MockAuthenticationFilter;
 import com.certifolio.server.global.security.oauth2.CustomOAuth2UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -33,6 +35,7 @@ public class SecurityConfig {
     private final OAuth2FailureHandler oAuth2FailureHandler;
     private final CustomAccessDeniedHandler customAccessDeniedHandler;
     private final CustomAuthenticationEntryPoint customAuthenticationEntryPoint;
+    private final ObjectProvider<MockAuthenticationFilter> mockAuthenticationFilter;
 
     @Value("${app.oauth2.redirect-uri}")
     private String redirectUri;
@@ -68,6 +71,10 @@ public class SecurityConfig {
                 )
 
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+
+        mockAuthenticationFilter.ifAvailable(filter ->
+                http.addFilterAfter(filter, JwtAuthenticationFilter.class)
+        );
 
         return http.build();
     }

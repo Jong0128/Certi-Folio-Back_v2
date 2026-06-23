@@ -36,6 +36,17 @@ out/
 ### VS Code ###
 .vscode/
 
+### Python ###
+ai-service/.venv/
+ai-service/.pytest_cache/
+ai-service/**/__pycache__/
+ai-service/.env.example/
+ai-service/pytest.ini/
+ai-service/README.md/
+ai-service/requirements.txt/
+
 ### Sensitive config ###
 src/main/resources/application-secret.yaml
 src/main/resources/application-local.yaml
+
+fastapi-ai-api-local-design.md

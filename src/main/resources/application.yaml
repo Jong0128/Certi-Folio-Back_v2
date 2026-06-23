@@ -4,21 +4,10 @@ spring:
   config:
     import: optional:classpath:application-secret.yaml
   profiles:
-    active: local
+    default: local
   forward-headers-strategy: framework
   datasource:
-    url: jdbc:mysql://localhost:3306/CertiFolio?useSSL=false&serverTimezone=Asia/Seoul&characterEncoding=UTF-8
     driver-class-name: com.mysql.cj.jdbc.Driver
-    username: root
-    password: ${DB_PASSWORD}
-  jpa:
-    hibernate:
-      ddl-auto: update
-    properties:
-      hibernate:
-        dialect: org.hibernate.dialect.MySQLDialect
-        format_sql: true
-    show-sql: true
   security:
     oauth2:
       client:
@@ -26,14 +15,12 @@ spring:
           google:
             client-authentication-method: client_secret_post
             authorization-grant-type: authorization_code
-            redirect-uri: "http://ec2-3-35-37-53.ap-northeast-2.compute.amazonaws.com/login/oauth2/code/google"
             scope:
               - email
               - profile
           naver:
             client-authentication-method: client_secret_post
             authorization-grant-type: authorization_code
-            redirect-uri: "http://ec2-3-35-37-53.ap-northeast-2.compute.amazonaws.com/login/oauth2/code/naver"
             scope:
               - name
               - email
@@ -42,7 +29,6 @@ spring:
           kakao:
             client-authentication-method: client_secret_post
             authorization-grant-type: authorization_code
-            redirect-uri: "http://ec2-3-35-37-53.ap-northeast-2.compute.amazonaws.com/login/oauth2/code/kakao"
             scope:
               - profile_nickname
               - profile_image
@@ -62,12 +48,11 @@ spring:
 jwt:
   expiration: 3600000 # 1 hour
 
-app:
-  oauth2:
-    redirect-uri: http://ec2-3-35-37-53.ap-northeast-2.compute.amazonaws.com/auth/callback
-    authorized-redirect-uris:
-      - http://ec2-3-35-37-53.ap-northeast-2.compute.amazonaws.com/auth/callback
-
 gemini:
   api:
-    key: ${GEMINI_API_KEY}
+    key: ${GEMINI_API_KEY:}
+
+ai:
+  api:
+    timeout-seconds: ${AI_API_TIMEOUT_SECONDS:20}
+    internal-api-key: ${AI_INTERNAL_API_KEY:local-secret}
