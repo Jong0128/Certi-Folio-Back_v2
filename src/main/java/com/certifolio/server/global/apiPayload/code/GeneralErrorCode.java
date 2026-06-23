@@ -56,11 +56,6 @@ public enum GeneralErrorCode implements BaseErrorCode {
     EDUCATION_NOT_FOUND(HttpStatus.NOT_FOUND, "EDUCATION_002", "해당 학력 정보를 찾을 수 없습니다."),
     EDUCATION_UNAUTHORIZED(HttpStatus.FORBIDDEN, "EDUCATION_003", "해당 학력 정보에 접근 권한이 없습니다."),
 
-    // ============ ALGORITHM (AL) ============
-    ALGORITHM_NOT_FOUND(HttpStatus.NOT_FOUND, "ALGORITHM_001", "등록된 알고리즘 정보가 없습니다."),
-    ALGORITHM_HANDLE_NOT_FOUND(HttpStatus.NOT_FOUND, "ALGORITHM_002", "solved.ac에서 해당 핸들을 찾을 수 없습니다."),
-    ALGORITHM_API_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "ALGORITHM_003", "solved.ac API 호출에 실패했습니다."),
-
     // ============ PROJECT (PJ) ============
     PROJECT_NOT_INPUTTED(HttpStatus.BAD_REQUEST, "PROJECT_001", "프로젝트 정보를 입력하지 않았습니다."),
     PROJECT_NOT_FOUND(HttpStatus.NOT_FOUND, "PROJECT_002", "해당 프로젝트를 찾을 수 없습니다."),
@@ -68,25 +63,49 @@ public enum GeneralErrorCode implements BaseErrorCode {
 
     // ============ MENTORING (M) ============
     MENTOR_NOT_FOUND(HttpStatus.NOT_FOUND, "MENTOR_001", "해당 멘토를 찾을 수 없습니다."),
-    SELF_CHAT_NOT_ALLOWED(HttpStatus.BAD_REQUEST, "MENTOR_002", "멘토 본인과는 채팅방을 생성할 수 없습니다."),
+
     MENTORING_NOT_APPROVED(HttpStatus.FORBIDDEN, "MENTOR_003", "승인된 멘토링 관계가 있어야 채팅이 가능합니다."),
     CHAT_ROOM_ACCESS_DENIED(HttpStatus.FORBIDDEN, "MENTOR_004", "해당 채팅방에 참여 권한이 없습니다."),
     CHAT_ROOM_NOT_FOUND(HttpStatus.NOT_FOUND, "MENTOR_005", "해당 채팅방을 찾을 수 없습니다."),
+    MENTOR_ALREADY_APPLIED(HttpStatus.CONFLICT, "MENTOR_006", "이미 멘토 신청을 하셨습니다."),
+    MENTORING_APPLICATION_NOT_FOUND(HttpStatus.NOT_FOUND, "MENTOR_007", "해당 멘토링 신청을 찾을 수 없습니다."),
+    MENTORING_SESSION_NOT_FOUND(HttpStatus.NOT_FOUND, "MENTOR_008", "해당 멘토링 세션을 찾을 수 없습니다."),
+    MENTORING_SELF_APPLICATION(HttpStatus.BAD_REQUEST, "MENTOR_009", "자기 자신에게 멘토링을 신청할 수 없습니다."),
+    MENTORING_ALREADY_APPLIED(HttpStatus.CONFLICT, "MENTOR_010", "이미 대기 중인 신청이 있습니다."),
+    MENTORING_APPLICATION_UNAUTHORIZED(HttpStatus.FORBIDDEN, "MENTOR_011", "본인에게 온 신청만 처리할 수 있습니다."),
+    MENTORING_ALREADY_PROCESSED(HttpStatus.CONFLICT, "MENTOR_012", "이미 처리된 신청입니다."),
+    MENTORING_INVALID_STATUS(HttpStatus.BAD_REQUEST, "MENTOR_013", "잘못된 세션 상태값입니다."),
+    INVALID_TIME_SLOT(HttpStatus.BAD_REQUEST, "MENTOR_014", "유효하지 않은 시간대 값입니다."),
+
 
     // ============ ANALYTICS (AN) ============
     ANALYTICS_API_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "ANALYTICS_001", "AI 분석 중 오류가 발생했습니다."),
     ANALYTICS_NOT_FOUND(HttpStatus.NOT_FOUND, "ANALYTICS_002", "분석 결과를 찾을 수 없습니다."),
 
-    // ============ CODING TEST (CT) ============
-    SOLVED_AC_USER_NOT_FOUND(HttpStatus.NOT_FOUND, "CODING_001", "solved.ac에서 해당 사용자를 찾을 수 없습니다."),
-    SOLVED_AC_API_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "CODING_002", "solved.ac API 호출 중 오류가 발생했습니다."),
-
     // ============ NOTIFICATION (N) ============
     NOTIFICATION_NOT_FOUND(HttpStatus.NOT_FOUND, "NOTI_001", "해당 알림을 찾을 수 없습니다."),
+    NOTIFICATION_UNAUTHORIZED(HttpStatus.FORBIDDEN, "NOTI_002", "해당 알림에 접근 권한이 없습니다."),
 
+    // ============ COMMUNITY (CO) ============
+    POST_NOT_FOUND(HttpStatus.NOT_FOUND, "POST_001", "해당 글을 찾을 수 없습니다."),
+    POST_UNAUTHORIZED(HttpStatus.FORBIDDEN, "POST_002", "해당 글에 접근 권한이 없습니다."),
+    COMMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "COMMENT_001", "해당 댓글을 찾을 수 없습니다."),
+    COMMENT_UNAUTHORIZED(HttpStatus.FORBIDDEN, "COMMENT_002", "해당 댓글에 접근 권한이 없습니다."),
 
-    ;
+    // ============ PORTFOLIO (P) ============
+    PORTFOLIO_DRAFT_NOT_FOUND(HttpStatus.NOT_FOUND, "PORTFOLIO_001","포트폴리오 초안을 찾을 수 없습니다."),
+    PORTFOLIO_DRAFT_UNAUTHORIZED(HttpStatus.FORBIDDEN, "PORTFOLIO_002","해당 포트폴리오 초안에 접근 권한이 없습니다."),
+    PORTFOLIO_SPEC_EMPTY(HttpStatus.BAD_REQUEST, "PORTFOLIO_003","포트폴리오를 생성할 스펙 데이터가 없습니다."),
+    PORTFOLIO_AI_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "PORTFOLIO_004","AI 초안 생성 중 오류가 발생했습니다."),
+
+    // ============ GROUP CHAT (GC) ============
+    GROUP_CHAT_ROOM_NOT_FOUND(HttpStatus.NOT_FOUND, "GROUP_CHAT_001", "해당 유저 채팅방을 찾을 수 없습니다."),
+    GROUP_CHAT_ROOM_ALREADY_EXISTS(HttpStatus.CONFLICT, "GROUP_CHAT_002", "이미 동일한 이름의 채팅방이 존재합니다."),
+    GROUP_CHAT_ACCESS_DENIED(HttpStatus.FORBIDDEN, "GROUP_CHAT_003", "해당 유저 채팅방에 참여하지 않았습니다."),
+    GROUP_CHAT_ALREADY_JOINED(HttpStatus.CONFLICT, "GROUP_CHAT_004", "이미 참여 중인 채팅방입니다."),
+    GROUP_CHAT_INVALID_CHATTINGROOM_NAME(HttpStatus.BAD_REQUEST, "GROUP_CHAT_005", "채팅방 이름이 올바르지 않습니다."),
+    GROUP_CHAT_ROOM_LIMIT_EXCEEDED(HttpStatus.CONFLICT, "GROUP_CHAT_006", "한 사용자는 최대 3개까지 채팅방을 만들 수 있습니다.");
     private final HttpStatus httpStatus;
     private final String code;
     private final String message;
-}
+    }

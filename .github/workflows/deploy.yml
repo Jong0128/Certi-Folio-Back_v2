@@ -1,0 +1,61 @@
+name: Spring Boot Deploy to EC2
+
+on:
+  push:
+    branches: [ "dev" ]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 1. 백엔드 코드 가져오기
+        uses: actions/checkout@v4
+
+      - name: 2. application-secret.yaml 생성
+        env:
+          APPLICATION_SECRET_YAML: ${{ secrets.APPLICATION_SECRET_YAML }}
+        run: echo "$APPLICATION_SECRET_YAML" > application-secret.yaml
+
+      - name: 3. Docker 이미지 빌드
+        run: docker build -t certifolio-server:latest .
+
+      - name: 4. Docker 이미지를 tar.gz로 저장
+        run: docker save certifolio-server:latest | gzip > certifolio-server.tar.gz
+
+      - name: 5. EC2로 이미지 및 시크릿 전송
+        uses: appleboy/scp-action@v1.0.0
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USERNAME }}
+          key: ${{ secrets.EC2_KEY }}
+          port: 22
+          source: "certifolio-server.tar.gz,application-secret.yaml"
+          target: "~/backend"
+
+      - name: 6. 컨테이너 교체 및 실행
+        uses: appleboy/ssh-action@v1.2.5
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USERNAME }}
+          key: ${{ secrets.EC2_KEY }}
+          port: 22
+          script: |
+            cd ~/backend
+
+            docker load < certifolio-server.tar.gz
+
+            docker stop certifolio-server || true
+            docker rm certifolio-server || true
+
+            ENV_OPTS=""
+            if [ -f .env ]; then
+              ENV_OPTS="--env-file .env"
+            fi
+
+            docker run -d \
+              --name certifolio-server \
+              --restart unless-stopped \
+              -p 8080:8080 \
+              $ENV_OPTS \
+              -v ~/backend/application-secret.yaml:/app/application-secret.yaml:ro \
+              certifolio-server:latest

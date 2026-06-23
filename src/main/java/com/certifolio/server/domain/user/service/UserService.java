@@ -6,7 +6,9 @@ import com.certifolio.server.domain.user.repository.CareerPreferenceRepository;
 import com.certifolio.server.domain.user.repository.UserRepository;
 import com.certifolio.server.global.apiPayload.code.GeneralErrorCode;
 import com.certifolio.server.global.apiPayload.exception.BusinessException;
+import com.certifolio.server.global.service.S3Service;
 import lombok.RequiredArgsConstructor;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -16,6 +18,7 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final CareerPreferenceRepository careerPreferenceRepository;
+    private final S3Service s3Service;
 
     @Transactional(readOnly = true)
     public User getUserById(Long userId) {
@@ -24,14 +27,12 @@ public class UserService {
     }
 
     @Transactional
-    public void saveOnBoarding(User user, String name, Integer birthYear, String companyType, String jobRole) {
-        user.update(name, birthYear);
+    public void saveOnBoarding(User user, String name, String companyType, String jobRole) {
+        user.update(name);
 
         CareerPreference pref = careerPreferenceRepository.findByUser(user)
                 .orElseGet(() -> CareerPreference.builder()
                         .user(user)
-                        .companyType(companyType)
-                        .jobRole(jobRole)
                         .build());
 
         pref.update(companyType, jobRole);
@@ -42,5 +43,25 @@ public class UserService {
     public CareerPreference getCareerPreference(User user) {
         return careerPreferenceRepository.findByUser(user)
                 .orElseThrow(() -> new BusinessException(GeneralErrorCode.USER_HAVE_NO_PREFERENCE));
+    }
+
+    @Transactional(readOnly = true)
+    public CareerPreference getCareerPreferenceOrNull(User user) {
+        return careerPreferenceRepository.findByUser(user).orElse(null);
+    }
+  
+    @Transactional
+    public String updateProfileImage(Long userId, MultipartFile file) {
+        User user = getUserById(userId);
+
+        String previousImage = user.getPicture();
+        String uploadedImageUrl = s3Service.uploadFile(file, "profiles");
+        user.updatePicture(uploadedImageUrl);
+
+        if (previousImage != null && previousImage.contains(".amazonaws.com/")) {
+            s3Service.deleteFile(previousImage);
+        }
+
+        return uploadedImageUrl;
     }
 }
